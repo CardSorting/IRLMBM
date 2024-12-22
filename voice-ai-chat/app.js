@@ -1,12 +1,16 @@
 // Initialize Firebase after fetching config
 async function setupFirebase() {
     try {
-        const response = await fetch('http://localhost:3000/api/config');
+        const response = await fetch('/api/config');
         if (!response.ok) {
             throw new Error('Failed to fetch Firebase configuration');
         }
         const { firebaseConfig } = await response.json();
-        firebase.initializeApp(firebaseConfig);
+        
+        // Check if Firebase is already initialized
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         return firebase.auth();
     } catch (error) {
         console.error('Error initializing Firebase:', error);
@@ -19,15 +23,52 @@ class VoiceAIChat {
     constructor(auth) {
         this.auth = auth;
         
-        // Check authentication
-        this.auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = '/';
-                return;
+        // Check authentication and handle token persistence
+        this.auth.onAuthStateChanged(async (user) => {
+            try {
+                // First check if we have a valid session
+                const response = await fetch('/chat.html', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    // No valid session, check if we have a user to get a new token
+                    if (!user) {
+                        window.location.replace('/auth.html');
+                        return;
+                    }
+
+                    // Get fresh token and verify with server
+                    const token = await user.getIdToken(true);
+                    const verifyResponse = await fetch('/api/verify-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ token }),
+                        credentials: 'include'
+                    });
+                    
+                    if (!verifyResponse.ok) {
+                        throw new Error('Token verification failed');
+                    }
+                }
+
+                // Set up token refresh if we have a user
+                if (user) {
+                    this.setupTokenRefresh(user);
+                }
+                
+                // Load chat history
+                await this.loadChatHistory();
+            } catch (error) {
+                console.error('Auth state error:', error);
+                await this.auth.signOut();
+                window.location.replace('/auth.html');
             }
-            this.loadChatHistory();
         });
 
+        // Initialize UI elements
         this.startButton = document.getElementById('startButton');
         this.logoutButton = document.getElementById('logoutButton');
         this.chatContainer = document.getElementById('chatContainer');
@@ -39,10 +80,33 @@ class VoiceAIChat {
         this.recognition.interimResults = false;
         
         this.synthesis = window.speechSynthesis;
-        
         this.isListening = false;
         
         this.setupEventListeners();
+    }
+
+    setupTokenRefresh(user) {
+        // Refresh token and cookie every 30 minutes
+        setInterval(async () => {
+            try {
+                const token = await user.getIdToken(true);
+                const response = await fetch('/api/verify-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Token refresh failed');
+                }
+            } catch (error) {
+                console.error('Token refresh error:', error);
+                window.location.replace('/auth.html');
+            }
+        }, 30 * 60 * 1000);
     }
 
     setupEventListeners() {
@@ -50,8 +114,19 @@ class VoiceAIChat {
         this.logoutButton.addEventListener('click', async () => {
             try {
                 this.logoutButton.disabled = true;
+                // Clear server-side session first
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to clear session');
+                }
+                
+                // Then sign out of Firebase
                 await this.auth.signOut();
-                window.location.href = '/';
+                window.location.replace('/auth.html');
             } catch (error) {
                 console.error('Logout error:', error);
                 alert('Failed to logout. Please try again.');
@@ -68,10 +143,10 @@ class VoiceAIChat {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
                 </svg>
-                <span>Stop Listening</span>`;
+                <span>Stop Neural Link</span>`;
             this.startButton.classList.remove('bg-primary', 'hover:bg-primary-dark');
             this.startButton.classList.add('bg-red-500', 'hover:bg-red-600');
-            this.updateStatus('Listening...', 'text-primary');
+            this.updateStatus('Neural link active...', 'text-primary');
         };
 
         this.recognition.onend = () => {
@@ -80,10 +155,10 @@ class VoiceAIChat {
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                 </svg>
-                <span>Start Listening</span>`;
+                <span>Initialize Neural Link</span>`;
             this.startButton.classList.remove('bg-red-500', 'hover:bg-red-600');
             this.startButton.classList.add('bg-primary', 'hover:bg-primary-dark');
-            this.updateStatus('Click the button and start speaking');
+            this.updateStatus('Neural link ready...');
         };
 
         this.recognition.onresult = (event) => {
@@ -94,13 +169,13 @@ class VoiceAIChat {
 
         this.recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            this.updateStatus(`Error: ${event.error}`, 'text-red-500');
+            this.updateStatus(`Neural link error: ${event.error}`, 'text-red-500');
             this.isListening = false;
             this.startButton.innerHTML = `
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                 </svg>
-                <span>Start Listening</span>`;
+                <span>Initialize Neural Link</span>`;
             this.startButton.classList.remove('bg-red-500', 'hover:bg-red-600');
             this.startButton.classList.add('bg-primary', 'hover:bg-primary-dark');
         };
@@ -118,16 +193,32 @@ class VoiceAIChat {
 
     async loadChatHistory() {
         try {
-            this.updateStatus('Loading chat history...', 'text-primary');
-            const token = await this.auth.currentUser.getIdToken();
-            const response = await fetch('http://localhost:3000/api/messages', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            this.updateStatus('Loading neural archive...', 'text-primary');
+            const response = await fetch('/api/messages', {
+                credentials: 'include'
             });
 
             if (!response.ok) {
-                throw new Error('Failed to load chat history');
+                if (response.status === 401 || response.status === 403) {
+                    // Token expired or invalid, try to refresh
+                    const token = await this.auth.currentUser?.getIdToken(true);
+                    if (token) {
+                        // Verify new token with server
+                        const verifyResponse = await fetch('/api/verify-token', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token }),
+                            credentials: 'include'
+                        });
+                        
+                        if (verifyResponse.ok) {
+                            return this.loadChatHistory(); // Retry with new token
+                        }
+                    }
+                }
+                throw new Error('Failed to load neural archive');
             }
 
             const { messages } = await response.json();
@@ -136,10 +227,15 @@ class VoiceAIChat {
             messages.forEach(message => {
                 this.addMessage(message.role === 'user' ? 'user' : 'ai', message.content);
             });
-            this.updateStatus('Click the button and start speaking');
+            this.updateStatus('Neural link ready...');
         } catch (error) {
             console.error('Error loading chat history:', error);
-            this.updateStatus('Error loading chat history', 'text-red-500');
+            this.updateStatus('Neural archive access denied', 'text-red-500');
+            if (error.message.includes('authentication')) {
+                setTimeout(() => {
+                    window.location.replace('/auth.html');
+                }, 2000);
+            }
         }
     }
 
@@ -161,23 +257,41 @@ class VoiceAIChat {
 
     async getAIResponse(userInput) {
         this.startButton.disabled = true;
-        this.updateStatus('Getting AI response...', 'text-primary');
+        this.updateStatus('Processing neural input...', 'text-primary');
         
         try {
-            const token = await this.auth.currentUser.getIdToken();
-            const response = await fetch('http://localhost:3000/api/chat', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     message: userInput
                 })
             });
 
             if (!response.ok) {
-                throw new Error('API request failed');
+                if (response.status === 401 || response.status === 403) {
+                    // Token expired or invalid, try to refresh
+                    const token = await this.auth.currentUser?.getIdToken(true);
+                    if (token) {
+                        // Verify new token with server
+                        const verifyResponse = await fetch('/api/verify-token', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token }),
+                            credentials: 'include'
+                        });
+                        
+                        if (verifyResponse.ok) {
+                            return this.getAIResponse(userInput); // Retry with new token
+                        }
+                    }
+                }
+                throw new Error('Neural processing failed');
             }
 
             const data = await response.json();
@@ -188,11 +302,18 @@ class VoiceAIChat {
             
         } catch (error) {
             console.error('Error details:', error);
-            this.updateStatus('Error getting AI response: ' + error.message, 'text-red-500');
-            this.addMessage('ai', 'Sorry, there was an error getting the response. Please try again.');
-            setTimeout(() => {
-                this.updateStatus('Click the button and start speaking');
-            }, 3000);
+            this.updateStatus('Neural processing error: ' + error.message, 'text-red-500');
+            this.addMessage('ai', 'Neural link disrupted. Please reinitialize connection.');
+            
+            if (error.message.includes('authentication')) {
+                setTimeout(() => {
+                    window.location.replace('/auth.html');
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    this.updateStatus('Neural link ready...');
+                }, 3000);
+            }
         } finally {
             this.startButton.disabled = false;
         }
@@ -204,7 +325,7 @@ class VoiceAIChat {
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.onend = () => {
-            this.updateStatus('Click the button and start speaking');
+            this.updateStatus('Neural link ready...');
         };
         this.synthesis.speak(utterance);
     }

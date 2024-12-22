@@ -1,18 +1,14 @@
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import dotenv from 'dotenv';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Load environment variables
+dotenv.config();
 
-const serviceAccountPath = join(__dirname, '..', 'cred', 'irlmbm-firebase-adminsdk-p4dxq-35e9808542.json');
-const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
-
+// Initialize with service account from file
 const admin = initializeApp({
-    credential: cert(serviceAccount)
+    credential: cert('../cred/irlmbm-firebase-adminsdk-p4dxq-35e9808542.json')
 });
 
 export const auth = getAuth(admin);
