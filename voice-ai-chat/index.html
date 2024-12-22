@@ -3,69 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice AI Chat - Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4285f4',
-                        'primary-dark': '#357abd'
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Matrix Mingle - Your Digital Reality Companion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
-    <div class="max-w-md w-full">
-        <div class="bg-white rounded-2xl shadow-xl p-8 space-y-8">
-            <!-- Logo/Title Section -->
-            <div class="text-center space-y-2">
-                <h1 class="text-3xl font-bold text-gray-900">Voice AI Chat</h1>
-                <p class="text-gray-500">Sign in to start your conversation</p>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Matrix Mingle</div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#about">About</a>
+                <a href="auth.html" class="btn btn-secondary">Sign In</a>
+                <a href="auth.html" class="btn btn-primary">Sign Up</a>
             </div>
+        </div>
+    </nav>
 
-            <!-- Login Button -->
-            <div class="flex justify-center">
-                <button id="loginButton" 
-                        class="group relative flex items-center justify-center space-x-3 px-6 py-3 bg-white border-2 border-gray-200 rounded-lg hover:border-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    <img src="https://www.google.com/favicon.ico" alt="Google" 
-                         class="w-5 h-5"/>
-                    <span class="text-gray-700 font-medium">Sign in with Google</span>
-                </button>
-            </div>
-
-            <!-- Features Section -->
-            <div class="border-t pt-6 space-y-4">
-                <h2 class="text-center text-sm font-medium text-gray-500 uppercase tracking-wide">Features</h2>
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-                        </svg>
-                        <span class="text-sm text-gray-600">Voice-enabled conversations</span>
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Take the Red Pill of AI Companionship</h1>
+                <p class="hero-subtitle">Unplug from loneliness and plug into meaningful connections. Your digital companion in the Matrix of modern life.</p>
+                <div class="hero-cta">
+                    <a href="auth.html" class="btn btn-primary btn-large">Get Started Free</a>
+                    <a href="#demo" class="btn btn-outline btn-large">Watch Demo</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Active Users</span>
                     </div>
-                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
-                        </svg>
-                        <span class="text-sm text-gray-600">Natural language responses</span>
-                    </div>
-                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-sm text-gray-600">Chat history saved</span>
+                    <div class="stat">
+                        <span class="stat-number">4.9/5</span>
+                        <span class="stat-label">User Rating</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="login.js"></script>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Why Enter The Matrix With Us?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <img src="images/icon-voice.svg" alt="Voice Interaction">
+                    <h3>Neo-Level Voice Recognition</h3>
+                    <p>Speak freely like you're in the Construct. Our AI understands you better than the Oracle herself.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="images/icon-character.svg" alt="Personality">
+                    <h3>Morpheus-Grade Adaptability</h3>
+                    <p>Like bending the Matrix, our AI bends to your style. It learns, adapts, and evolves with you.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="images/icon-roleplay.svg" alt="Multi-role">
+                    <h3>Agent Smith Multiplicity</h3>
+                    <p>One AI, infinite possibilities. From work to play, we multiply our skills to match your needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="container">
+            <h2>Transmissions from the Real World</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"It's like having my own personal Operator guiding me through the digital world. The voice interaction is smoother than Ultra HD."</p>
+                    <div class="testimonial-author">
+                        <span class="author-name">Sarah M.</span>
+                        <span class="author-title">Product Designer</span>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Matrix Mingle has me feeling like The One when it comes to productivity. The AI adapts faster than a sentinel in pursuit!"</p>
+                    <div class="testimonial-author">
+                        <span class="author-name">James R.</span>
+                        <span class="author-title">Entrepreneur</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2>Choose Your Reality</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Blue Pill</h3>
+                    <div class="price">$0<span>/month</span></div>
+                    <ul class="features-list">
+                        <li>Basic Matrix navigation</li>
+                        <li>5 daily reality checks</li>
+                        <li>Dial-up speed responses</li>
+                    </ul>
+                    <a href="auth.html" class="btn btn-outline">Get Started</a>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="card-badge">Most Popular</div>
+                    <h3>Red Pill</h3>
+                    <div class="price">$9.99<span>/month</span></div>
+                    <ul class="features-list">
+                        <li>Neo-level voice mastery</li>
+                        <li>Unlimited reality bending</li>
+                        <li>Speed of light responses</li>
+                        <li>Matrix code customization</li>
+                    </ul>
+                    <a href="auth.html" class="btn btn-primary">Start Free Trial</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Matrix Mingle</h4>
+                    <p>Where AI meets reality, and digital dreams come true.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#about">About</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Matrix Mingle. All rights reserved. No Matrix was harmed in the making of this AI.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
